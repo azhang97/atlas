@@ -276,6 +276,7 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
           "fake_target_mask"
         ))
       else:
+        print(input_path_list)
         # Assumes {input_path_list} is a list with length 1;
         # opens input, resizes it, converts to a numpy array
         input = Image.open(input_path_list[0]).convert("L")
@@ -283,7 +284,6 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
         input = input.crop((0, 0) + self._shape[::-1])
         input = np.asarray(input) / 255.0
         key = input_path_list[0][19:35]
-        input_meta = np.array(self.meta[key])
         input_meta = np.repeat(input_meta[np.newaxis,:], self._shape[1], axis=0)
         input_meta = np.repeat(input_meta[np.newaxis,:], self._shape[0], axis=0)
         input = np.append(input[:, :, np.newaxis], input_meta, axis=2)
@@ -324,4 +324,3 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
                             np.asarray(target_masks_batch),
                             input_paths_batch,
                             target_mask_path_lists_batch))
-

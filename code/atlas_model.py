@@ -277,12 +277,7 @@ class ATLASModel(object):
     return results["predicted_masks"]
 
 
-  def calculate_loss(self,
-                     sess,
-                     input_paths,
-                     target_mask_paths,
-                     dataset,
-                     num_samples=None):
+  def calculate_loss(self, sess, input_paths, target_mask_paths, dataset, num_samples=None):
     """
     Calculates the loss for a dataset, represented by a list of {input_paths}
     and {target_mask_paths}.
@@ -334,14 +329,7 @@ class ATLASModel(object):
     return loss
 
 
-  def calculate_dice_coefficient(self,
-                                 sess,
-                                 input_paths,
-                                 target_mask_paths,
-                                 dataset,
-                                 num_samples=100,
-                                 plot=False,
-                                 print_to_screen=False):
+  def calculate_dice_coefficient(self, sess, input_paths, target_mask_paths, dataset, num_samples=100, plot=False, print_to_screen=False):
     """
     Calculates the dice coefficient score for a dataset, represented by a
     list of {input_paths} and {target_mask_paths}.
@@ -420,12 +408,7 @@ class ATLASModel(object):
     return dice_coefficient_mean
 
 
-  def train(self,
-            sess,
-            train_input_paths,
-            train_target_mask_paths,
-            dev_input_paths,
-            dev_target_mask_paths):
+  def train(self, sess, train_input_paths, train_target_mask_paths, dev_input_paths, dev_target_mask_paths):
     """
     Defines the training loop.
 
@@ -622,7 +605,7 @@ class MetaUNetATLASModel(ATLASModel):
                                        global_step=self.global_step_op)
 
     # Adds a summary to write examples of images to TensorBoard
-    utils.add_summary_image_triplet(self.inputs_op[:,:,0],
+    utils.add_summary_image_triplet(self.inputs_op[:,:,:,0],
                                     self.target_masks_op,
                                     self.predicted_masks_op,
                                     num_images=self.FLAGS.num_summary_images)
@@ -670,7 +653,7 @@ class MetaUNetATLASModel(ATLASModel):
     metaunet = MetaUNet(input_shape=self.input_dims,
                     keep_prob=self.keep_prob,
                     output_shape=self.input_dims,
-                    scope_name="unet")
+                    scope_name="metaunet")
     self.logits_op = tf.squeeze(
       metaunet.build_graph(self.inputs_op))
 
@@ -680,12 +663,136 @@ class MetaUNetATLASModel(ATLASModel):
                                       tf.uint8,
                                       name="predicted_masks")
 
-  def train(self,
-            sess,
-            train_input_paths,
-            train_target_mask_paths,
-            dev_input_paths,
-            dev_target_mask_paths):
+  def calculate_loss(self, sess, input_paths, target_mask_paths, dataset, num_samples=None):
+    """
+    Calculates the loss for a dataset, represented by a list of {input_paths}
+    and {target_mask_paths}.
+
+    Inputs:
+    - sess: A TensorFlow Session object.
+    - input_paths: A list of Python strs that represent pathnames to input
+      image files.
+    - target_mask_paths: A list of Python strs that represent pathnames to
+      target mask files.
+    - dataset: A Python str that represents the dataset being tested. Options:
+      {train,dev}. Just for logging purposes.
+    - num_samples: A Python int that represents the number of samples to test.
+      If num_samples=None, then test whole dataset.
+
+    Outputs:
+    - loss: A Python float that represents the average loss across the sampled
+      examples.
+    """
+    logging.info(f"Calculating loss for {num_samples} examples from "
+                 f"{dataset}...")
+    tic = time.time()
+
+    loss_per_batch, batch_sizes = [], []
+
+    msbg = MetaSliceBatchGenerator(input_paths,
+                                  target_mask_paths,
+                                  self.FLAGS.batch_size,
+                                  num_samples=num_samples,
+                                  shape=(self.FLAGS.slice_height,
+                                         self.FLAGS.slice_width),
+                                  use_fake_target_masks=self.FLAGS.use_fake_target_masks)
+    # Iterates over batches
+    for batch in msbg.get_batch():
+      # Gets loss for this batch
+      loss = self.get_loss_for_batch(sess, batch)
+      cur_batch_size = batch.batch_size
+      loss_per_batch.append(loss * cur_batch_size)
+      batch_sizes.append(cur_batch_size)
+
+    # Calculates average loss
+    total_num_examples = sum(batch_sizes)
+
+    # Overall loss is total loss divided by total number of examples
+    loss = sum(loss_per_batch) / float(total_num_examples)
+
+    toc = time.time()
+    logging.info(f"Calculating loss took {toc-tic} sec.")
+    return loss
+
+  def calculate_dice_coefficient(self, sess, input_paths, target_mask_paths, dataset, num_samples=100, plot=False, print_to_screen=False):
+    """
+    Calculates the dice coefficient score for a dataset, represented by a
+    list of {input_paths} and {target_mask_paths}.
+
+    Inputs:
+    - sess: A TensorFlow Session object.
+    - input_paths: A list of Python strs that represent pathnames to input
+      image files.
+    - target_mask_paths: A list of Python strs that represent pathnames to
+      target mask files.
+    - dataset: A Python str that represents the dataset being tested. Options:
+      {train,dev}. Just for logging purposes.
+    - num_samples: A Python int that represents the number of samples to test.
+      If num_samples=None, then test whole dataset.
+    - plot: A Python bool. If True, plots each example to screen.
+
+    Outputs:
+    - dice_coefficient: A Python float that represents the average dice
+      coefficient across the sampled examples.
+    """
+    logging.info(f"Calculating dice coefficient for {num_samples} examples "
+                 f"from {dataset}...")
+    tic = time.time()
+
+    dice_coefficient_total = 0.
+    num_examples = 0
+
+    sbg = MetaSliceBatchGenerator(input_paths,
+                                  target_mask_paths,
+                                  self.FLAGS.batch_size,
+                                  shape=(self.FLAGS.slice_height,
+                                         self.FLAGS.slice_width),
+                                  use_fake_target_masks=self.FLAGS.use_fake_target_masks)
+    for batch in sbg.get_batch():
+      predicted_masks = self.get_predicted_masks_for_batch(sess, batch)
+
+      zipped_masks = zip(predicted_masks,
+                         batch.target_masks_batch,
+                         batch.input_paths_batch,
+                         batch.target_mask_path_lists_batch)
+      for idx, (predicted_mask,
+                target_mask,
+                input_path,
+                target_mask_path_list) in enumerate(zipped_masks):
+        dice_coefficient = utils.dice_coefficient(predicted_mask, target_mask)
+        if dice_coefficient >= 0.0:
+          dice_coefficient_total += dice_coefficient
+          num_examples += 1
+
+          if print_to_screen:
+            # Whee! We predicted at least one lesion pixel!
+            logging.info(f"Dice coefficient of valid example {num_examples}: "
+                         f"{dice_coefficient}")
+          if plot:
+            f, axarr = plt.subplots(1, 2)
+            f.suptitle(input_path)
+            axarr[0].imshow(predicted_mask)
+            axarr[0].set_title("Predicted")
+            axarr[1].imshow(target_mask)
+            axarr[1].set_title("Target")
+            examples_dir = os.path.join(self.FLAGS.train_dir, "examples")
+            if not os.path.exists(examples_dir):
+              os.makedirs(examples_dir)
+            f.savefig(os.path.join(examples_dir, str(num_examples).zfill(4)))
+
+        if num_samples != None and num_examples >= num_samples:
+          break
+
+      if num_samples != None and num_examples >= num_samples:
+        break
+
+    dice_coefficient_mean = dice_coefficient_total / num_examples
+
+    toc = time.time()
+    logging.info(f"Calculating dice coefficient took {toc-tic} sec.")
+    return dice_coefficient_mean
+
+  def train(self, sess, train_input_paths, train_target_mask_paths, dev_input_paths, dev_target_mask_paths):
     params = tf.trainable_variables()
     num_params = sum(map(lambda t: np.prod(tf.shape(t.value()).eval()), params))
 
