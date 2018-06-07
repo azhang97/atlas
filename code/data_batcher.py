@@ -284,7 +284,7 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
         input = input.crop((0, 0) + self._shape[::-1])
         input = np.asarray(input) / 255.0
         key = input_path_list[0][19:35]
-        input_meta = np.repeat(input_meta[np.newaxis,:], self._shape[1], axis=0)
+        input_meta = np.repeat(input[np.newaxis,:], self._shape[1], axis=0)
         input_meta = np.repeat(input_meta[np.newaxis,:], self._shape[0], axis=0)
         input = np.append(input[:, :, np.newaxis], input_meta, axis=2)
 
