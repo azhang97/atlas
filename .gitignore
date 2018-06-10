@@ -6,4 +6,5 @@ __pycache__
 experiments/*
 !experiments/.gitkeep
 data/*
+!data/ATLAS_Meta-Data_Release_1.1_standard_mni.csv
 !data/.gitkeep
