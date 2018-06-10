@@ -228,7 +228,7 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
                      shuffle,
                      use_fake_target_masks)
     self.meta = {}
-    with open('../data/ATLAS_R1.1/ATLAS_Meta-Data_Release_1.1_standard_mni.csv', mode='r') as infile:
+    with open('../data/ATLAS_Meta-Data_Release_1.1_standard_mni.csv', mode='r') as infile:
       rows = [row for row in csv.reader(infile)]
       for row in rows[1:]:
         key = '/'.join([row[0], '0'+row[1], row[2].strip()])
@@ -283,9 +283,9 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
         input = input.crop((0, 0) + self._shape[::-1])
         input = np.asarray(input) / 255.0
         key = input_path_list[0][19:35]
-        input_meta = np.repeat(input[np.newaxis,:], self._shape[1], axis=0)
+        input_meta = np.repeat(np.array(self.meta[key])[np.newaxis,:], self._shape[1], axis=0)
         input_meta = np.repeat(input_meta[np.newaxis,:], self._shape[0], axis=0)
-        print(input._shape, input_meta._shape)
+        print(input.shape, input_meta.shape)
         input = np.append(input[:, :, np.newaxis], input_meta, axis=2)
 
         # Assumes {target_mask_path_list} is a list of lists, where the outer
