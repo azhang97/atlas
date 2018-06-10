@@ -492,7 +492,8 @@ class ATLASModel(object):
           train_dice = self.calculate_dice_coefficient(sess,
                                                        train_input_paths,
                                                        train_target_mask_paths,
-                                                       "train")
+                                                       "train",
+                                                       num_samples=self.FLAGS.dev_num_samples)
           logging.info(f"epoch {epoch}, "
                        f"global_step {global_step}, "
                        f"train dice_coefficient: {train_dice}")
@@ -505,7 +506,8 @@ class ATLASModel(object):
           dev_dice = self.calculate_dice_coefficient(sess,
                                                      dev_input_paths,
                                                      dev_target_mask_paths,
-                                                     "dev")
+                                                     "dev",
+                                                     num_samples=self.FLAGS.dev_num_samples)
           logging.info(f"epoch {epoch}, "
                        f"global_step {global_step}, "
                        f"dev dice_coefficient: {dev_dice}")
