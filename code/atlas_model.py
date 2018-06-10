@@ -736,6 +736,117 @@ class MetaUNetATLASModel(ATLASModel):
     logging.info(f"Calculating dice coefficient took {toc-tic} sec.")
     return dice_coefficient_mean
 
+  def train(self, sess, train_input_paths, train_target_mask_paths, dev_input_paths, dev_target_mask_paths):
+    """
+    Defines the training loop.
+
+    Inputs:
+    - sess: A TensorFlow Session object.
+    - {train,dev}_{input_paths,target_mask_paths}: A list of Python strs
+      that represent pathnames to input image files and target mask files.
+    """
+    params = tf.trainable_variables()
+    num_params = sum(map(lambda t: np.prod(tf.shape(t.value()).eval()), params))
+
+    # We will keep track of exponentially-smoothed loss
+    exp_loss = None
+
+    # Checkpoint management.
+    # We keep one latest checkpoint, and one best checkpoint (early stopping)
+    checkpoint_path = os.path.join(self.FLAGS.train_dir, "qa.ckpt")
+    best_dev_dice_coefficient = None
+
+    # For TensorBoard
+    summary_writer = tf.summary.FileWriter(self.FLAGS.train_dir, sess.graph)
+
+    epoch = 0
+    num_epochs = self.FLAGS.num_epochs
+    while num_epochs == None or epoch < num_epochs:
+      epoch += 1
+
+      # Loops over batches
+      msbg = MetaSliceBatchGenerator(train_input_paths,
+                                train_target_mask_paths,
+                                self.FLAGS.batch_size,
+                                shape=(self.FLAGS.slice_height,
+                                       self.FLAGS.slice_width),
+                                use_fake_target_masks=self.FLAGS.use_fake_target_masks)
+      num_epochs_str = str(num_epochs) if num_epochs != None else "indefinite"
+      for batch in tqdm(msbg.get_batch(),
+                        desc=f"Epoch {epoch}/{num_epochs_str}",
+                        total=msbg.get_num_batches()):
+        # Runs training iteration
+        loss, global_step, param_norm, grad_norm =\
+          self.run_train_iter(sess, batch, summary_writer)
+
+        # Updates exponentially-smoothed loss
+        if not exp_loss:  # first iter
+          exp_loss = loss
+        else:
+          exp_loss = 0.99 * exp_loss + 0.01 * loss
+
+        # Sometimes prints info
+        if global_step % self.FLAGS.print_every == 0:
+          logging.info(
+            f"epoch {epoch}, "
+            f"global_step {global_step}, "
+            f"loss {loss}, "
+            f"exp_loss {exp_loss}, "
+            f"grad norm {grad_norm}, "
+            f"param norm {param_norm}")
+
+        # Sometimes saves model
+        if (global_step % self.FLAGS.save_every == 0
+            or global_step == msbg.get_num_batches()):
+          self.saver.save(sess, checkpoint_path, global_step=global_step)
+
+        # Sometimes evaluates model on dev loss, train F1/EM and dev F1/EM
+        if global_step % self.FLAGS.eval_every == 0:
+          # Logs loss for entire dev set to TensorBoard
+          dev_loss = self.calculate_loss(sess,
+                                         dev_input_paths,
+                                         dev_target_mask_paths,
+                                         "dev",
+                                         self.FLAGS.dev_num_samples)
+          logging.info(f"epoch {epoch}, "
+                       f"global_step {global_step}, "
+                       f"dev_loss {dev_loss}")
+          utils.write_summary(dev_loss,
+                              "dev/loss",
+                              summary_writer,
+                              global_step)
+
+          # Logs dice coefficient on train set to TensorBoard
+          train_dice = self.calculate_dice_coefficient(sess,
+                                                       train_input_paths,
+                                                       train_target_mask_paths,
+                                                       "train",
+                                                       num_samples=self.FLAGS.dev_num_samples)
+          logging.info(f"epoch {epoch}, "
+                       f"global_step {global_step}, "
+                       f"train dice_coefficient: {train_dice}")
+          utils.write_summary(train_dice,
+                              "train/dice",
+                              summary_writer,
+                              global_step)
+
+          # Logs dice coefficient on dev set to TensorBoard
+          dev_dice = self.calculate_dice_coefficient(sess,
+                                                     dev_input_paths,
+                                                     dev_target_mask_paths,
+                                                     "dev",
+                                                     num_samples=self.FLAGS.dev_num_samples)
+          logging.info(f"epoch {epoch}, "
+                       f"global_step {global_step}, "
+                       f"dev dice_coefficient: {dev_dice}")
+          utils.write_summary(dev_dice,
+                              "dev/dice",
+                              summary_writer,
+                              global_step)
+      # end for batch in sbg.get_batch
+    # end while num_epochs == 0 or epoch < num_epochs
+    sys.stdout.flush()
+
 # class MetaUNetATLASModel(ATLASModel):
 #   def __init__(self, FLAGS):
 #     """
