@@ -4,6 +4,7 @@ import time
 import re
 import csv
 import logging
+import tensorflow as tf
 
 from PIL import Image
 
@@ -272,7 +273,7 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
         input = Image.open(input_path_list[0]).convert("L")
         input = np.asarray(input.crop((0, 0) + self._shape[::-1]))
         meta = np.array([0])
-        print(input.shape)
+        tf.print(input.shape)
         # Image.resize expects (width, height) order
         examples.append((
           # np.asarray(input.resize(self._shape[::-1], Image.NEAREST)),
@@ -290,7 +291,7 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
         input = np.asarray(input) / 255.0
 
         meta = np.array([1])
-        print(input.shape)
+        tf.print(input.shape)
 
         # Assumes {target_mask_path_list} is a list of lists, where the outer
         # list has length 1 and the inner list has length >= 1;
