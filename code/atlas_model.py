@@ -173,6 +173,8 @@ class ATLASModel(object):
     input_feed[self.target_masks_op] = batch.target_masks_batch
     input_feed[self.keep_prob] = 1.0 - self.FLAGS.dropout  # applies dropout
 
+    print(batch.inputs_batch.shape)
+
     # To debug, it's often helpful to inspect variables or outputs of layers
     #   of the network. To do so, simply add tensors to {output_feed} and
     #   corresponding Python values will populate {results} e.g. suppose you
@@ -639,7 +641,7 @@ class MetaUNetATLASModel(ATLASModel):
     # Defines the input dimensions, which depend on the intended input; here
     # the intended input is a single slice but volumetric inputs might require
     # 1+ additional dimensions
-    self.input_dims = [self.FLAGS.slice_height, self.FLAGS.slice_width, 4]
+    self.input_dims = [self.FLAGS.slice_height, self.FLAGS.slice_width, 5]
     self.mask_dims = [self.FLAGS.slice_height, self.FLAGS.slice_width]
     self.output_dims = self.input_dims
 

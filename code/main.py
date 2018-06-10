@@ -161,7 +161,7 @@ def main(_):
   # Sets GPU settings
   config = tf.ConfigProto()
   # config = tf.ConfigProto(log_device_placement=True)
-  config.gpu_options.allow_growth = True
+  # config.gpu_options.allow_growth = True
 
   #############################################################################
   # Train/dev split and model definition                                      #
