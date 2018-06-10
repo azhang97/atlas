@@ -86,7 +86,7 @@ class SliceBatchGenerator(object):
     self._pointer = 0
     self._order = list(range(len(self._input_path_lists)))
 
-    print(f"order {len(self._order)}")
+    # print(f"order {len(self._order)}")
     # When the batch_size does not even divide the number of input paths,
     # fill the last batch with randomly selected paths
     num_others = self._batch_size - (len(self._order) % self._batch_size)
