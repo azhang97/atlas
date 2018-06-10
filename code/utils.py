@@ -70,6 +70,7 @@ def add_summary_image_triplet(inputs_op,
   - triplet: A Tensor of concatenated images with shape batch size by
     image height dim by 3 * image width dim e.g. (100, 233, 197*3, 1).
   """
+  print(inputs.shape)
   # Converts from (100, 233, 197) to (100, 233, 197, 1)
   inputs_op = tf.expand_dims(inputs_op, axis=3)
   target_masks_op = tf.expand_dims(target_masks_op, axis=3)

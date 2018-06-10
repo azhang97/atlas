@@ -581,13 +581,43 @@ class UNetATLASModel(ATLASModel):
 class MetaUNetATLASModel(ATLASModel):
   def __init__(self, FLAGS):
     """
-    Initializes the U-Net ATLAS model, which predicts 0 for the entire mask
-    no matter what, which performs well when --use_fake_target_masks.
+    Initializes the ATLAS model.
 
     Inputs:
-    - FLAGS: A _FlagValuesWrapper object passed in from main.py.
+    - FLAGS: A _FlagValuesWrapper object.
     """
-    super().__init__(FLAGS)
+    self.FLAGS = FLAGS
+
+    with tf.variable_scope("ATLASModel"):
+      self.add_placeholders()
+      self.build_graph()
+      self.add_loss()
+
+    # Defines the trainable parameters, gradient, gradient norm, and clip by
+    # gradient norm
+    params = tf.trainable_variables()
+    gradients = tf.gradients(self.loss, params)
+    self.gradient_norm = tf.global_norm(gradients)
+    clipped_gradients, _ = tf.clip_by_global_norm(gradients,
+                                                  FLAGS.max_gradient_norm)
+    self.param_norm = tf.global_norm(params)
+
+    # Defines optimizer and updates; {self.updates} needs to be fetched in
+    # sess.run to do a gradient update
+    self.global_step_op = tf.Variable(0, name="global_step", trainable=False)
+    opt = tf.train.AdamOptimizer(learning_rate=FLAGS.learning_rate)
+    self.updates = opt.apply_gradients(zip(clipped_gradients, params),
+                                       global_step=self.global_step_op)
+
+    # Adds a summary to write examples of images to TensorBoard
+    utils.add_summary_image_triplet(self.inputs_op[:,:,:,0],
+                                    self.target_masks_op,
+                                    self.predicted_masks_op,
+                                    num_images=self.FLAGS.num_summary_images)
+
+    # Defines savers (for checkpointing) and summaries (for tensorboard)
+    self.saver = tf.train.Saver(tf.global_variables(), max_to_keep=FLAGS.keep)
+    self.summaries = tf.summary.merge_all()
 
   def add_placeholders(self):
     """
