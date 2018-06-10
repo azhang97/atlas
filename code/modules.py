@@ -187,7 +187,7 @@ class MetaUNet(NeuralNetwork):
   def build_graph(self, input):
     with tf.variable_scope(self.scope_name):
       # Conv
-      conv1 = self.conv2d_relu(input, filter_shape=[3, 3, 2, 64], scope_name="conv1")  # (b, 232, 196, 64)
+      conv1 = self.conv2d_relu(input, filter_shape=[3, 3, 5, 64], scope_name="conv1")  # (b, 232, 196, 64)
       drop1 = self.dropout(conv1, keep_prob=self.keep_prob, scope_name="drop1")
       conv2 = self.conv2d_relu(drop1, filter_shape=[3, 3, 64, 64], scope_name="conv2")  # (b, 232, 196, 64)
       drop2 = self.dropout(conv2, keep_prob=self.keep_prob, scope_name="drop2")
