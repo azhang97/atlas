@@ -72,20 +72,21 @@ class SliceBatchGenerator(object):
       ignored and all masks are all 0s. This option might be useful to sanity
       check new models before training on the real dataset.
     """
-    print(input_path_lists)
     self._input_path_lists = input_path_lists
     self._target_mask_path_lists = target_mask_path_lists
     self._batch_size = batch_size
     self._batches = []
     self._max_num_refill_batches = max_num_refill_batches
     self._num_samples = num_samples
+    print(f"input {len(self._input_path_lists)}")
     if self._num_samples != None:
       self._input_path_lists = self._input_path_lists[:self._num_samples]
+      print(f"after {len(self._input_path_lists)}")
       self._target_mask_path_lists = self._target_mask_path_lists[:self._num_samples]
     self._pointer = 0
     self._order = list(range(len(self._input_path_lists)))
 
-    print(len(self._order))
+    print(f"order {len(self._order))}")
     # When the batch_size does not even divide the number of input paths,
     # fill the last batch with randomly selected paths
     num_others = self._batch_size - (len(self._order) % self._batch_size)
