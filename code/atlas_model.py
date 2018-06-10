@@ -362,7 +362,7 @@ class ATLASModel(object):
                               self.FLAGS.batch_size,
                               shape=(self.FLAGS.slice_height,
                                      self.FLAGS.slice_width),
-                              num_samples=num_samples,
+                              num_samples=self.FLAGS.num_samples,
                               use_fake_target_masks=self.FLAGS.use_fake_target_masks)
     for batch in sbg.get_batch():
       predicted_masks = self.get_predicted_masks_for_batch(sess, batch)
