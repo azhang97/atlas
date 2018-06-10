@@ -272,7 +272,8 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
       if self._use_fake_target_masks:
         input = Image.open(input_path_list[0]).convert("L")
         input = np.asarray(input.crop((0, 0) + self._shape[::-1]))
-        meta = np.array([0])
+        input_meta = np.zeros(self._shape + (4,))
+        input = np.append(input[:, :, np.newaxis], input_meta, axis=2)
         # print(input.shape)
         # Image.resize expects (width, height) order
         examples.append((
