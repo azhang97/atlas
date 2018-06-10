@@ -27,6 +27,7 @@ class NeuralNetwork(object):
                           shape=[filter_shape[3]])
       out = tf.nn.conv2d(input, W, padding="SAME", strides=strides)
       out = tf.nn.bias_add(out, b)
+      out = tf.contrib.layers.batch_norm(out)
       out = tf.nn.relu(out, name="out")
       return out
 
