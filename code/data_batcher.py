@@ -270,10 +270,13 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
     for input_path_list, target_mask_path_list in zipped_path_lists:
       if self._use_fake_target_masks:
         input = Image.open(input_path_list[0]).convert("L")
+        input = np.asarray(input.crop((0, 0) + self._shape[::-1]))
+        meta = np.array([0])
+        print(input.shape)
         # Image.resize expects (width, height) order
         examples.append((
           # np.asarray(input.resize(self._shape[::-1], Image.NEAREST)),
-          np.asarray(input.crop((0, 0) + self._shape[::-1])),
+          input,
           np.zeros(self._shape),
           input_path_list[0],
           "fake_target_mask"
@@ -287,7 +290,7 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
         input = np.asarray(input) / 255.0
 
         meta = np.array([1])
-        logging.info(f"{input.shape}")
+        print(input.shape)
 
         # Assumes {target_mask_path_list} is a list of lists, where the outer
         # list has length 1 and the inner list has length >= 1;
