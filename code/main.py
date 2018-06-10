@@ -109,7 +109,7 @@ tf.app.flags.DEFINE_integer("slice_height", 232, "Sets the image height.")
 tf.app.flags.DEFINE_integer("slice_width", 196, "Sets the image width.")
 
 FLAGS = tf.app.flags.FLAGS
-os.environ["CUDA_VISIBLE_DEVICES"] = str(FLAGS.gpu)
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3,4,5,6,7" #str(FLAGS.gpu)
 
 
 def initialize_model(sess, model, train_dir, expect_exists=False):
