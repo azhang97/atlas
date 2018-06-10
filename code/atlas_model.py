@@ -873,7 +873,7 @@ class MetaUNetATLASModel(ATLASModel):
         # Sometimes evaluates model on dev loss, train F1/EM and dev F1/EM
         if global_step % self.FLAGS.eval_every == 0:
           # Logs loss for entire dev set to TensorBoard
-          print(f"dev {len(dev_input_paths)}")
+          # print(f"dev {len(dev_input_paths)}")
           dev_loss = self.calculate_loss(sess,
                                          dev_input_paths,
                                          dev_target_mask_paths,
