@@ -402,6 +402,8 @@ class ATLASModel(object):
       if num_samples != None and num_examples >= num_samples:
         break
 
+    if num_examples == 0:
+      num_examples = 1
     dice_coefficient_mean = dice_coefficient_total / num_examples
 
     toc = time.time()
