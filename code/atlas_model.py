@@ -892,7 +892,7 @@ class MetaUNetATLASModel(ATLASModel):
                                                        train_input_paths,
                                                        train_target_mask_paths,
                                                        "train",
-                                                       num_samples=self.FLAGS.dev_num_samples)
+                                                       num_samples=self.FLAGS.batch_size)
           logging.info(f"epoch {epoch}, "
                        f"global_step {global_step}, "
                        f"train dice_coefficient: {train_dice}")
