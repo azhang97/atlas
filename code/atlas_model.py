@@ -661,7 +661,7 @@ class MetaUNetATLASModel(ATLASModel):
                 output_shape=self.input_dims,
                 scope_name="metaunet")
     self.logits_op = tf.squeeze(
-      metaunet.build_graph(self.inputs_op))
+      metaunet.build_graph(self.inputs_op), axis=3)
 
     self.predicted_mask_probs_op = tf.sigmoid(self.logits_op,
                                               name="predicted_mask_probs")
