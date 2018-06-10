@@ -45,7 +45,7 @@ class ATLASModel(object):
                                        global_step=self.global_step_op)
 
     # Adds a summary to write examples of images to TensorBoard
-    utils.add_summary_image_triplet(self.inputs_op,
+    utils.add_summary_image_triplet(self.inputs_op[:,:,:,0],
                                     self.target_masks_op,
                                     self.predicted_masks_op,
                                     num_images=self.FLAGS.num_summary_images)
