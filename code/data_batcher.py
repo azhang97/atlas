@@ -239,7 +239,6 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
     print(self.meta)
 
   def refill_batches(self):
-    print(0)
     """
     Refills {self._batches}.
     """
@@ -269,15 +268,12 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
     # Updates self._pointer for the next call to {self.refill_batches}
     self._pointer += self._max_num_refill_batches
 
-    print(1)
     for input_path_list, target_mask_path_list in zipped_path_lists:
-      print(2)
       if self._use_fake_target_masks:
-        print(3)
         input = Image.open(input_path_list[0]).convert("L")
         input = np.asarray(input.crop((0, 0) + self._shape[::-1]))
         meta = np.array([0])
-        print(input.shape)
+        # print(input.shape)
         # Image.resize expects (width, height) order
         examples.append((
           # np.asarray(input.resize(self._shape[::-1], Image.NEAREST)),
@@ -287,7 +283,6 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
           "fake_target_mask"
         ))
       else:
-        print(4)
         # Assumes {input_path_list} is a list with length 1;
         # opens input, resizes it, converts to a numpy array
         input = Image.open(input_path_list[0]).convert("L")
@@ -296,7 +291,7 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
         input = np.asarray(input) / 255.0
 
         meta = np.array([1])
-        print(input.shape)
+        # print(input.shape)
 
         # Assumes {target_mask_path_list} is a list of lists, where the outer
         # list has length 1 and the inner list has length >= 1;
