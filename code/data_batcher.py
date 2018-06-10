@@ -3,6 +3,7 @@ import random
 import time
 import re
 import csv
+import logging
 
 from PIL import Image
 
