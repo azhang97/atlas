@@ -365,10 +365,10 @@ class FUCK():
 
     examples = []  # A Python list of (input, target_mask) tuples
 
-    {start_idx} and {end_idx} are values like 2000 and 3000
-    If shuffle=True, then {self._order} is a list like [56, 720, 12, ...]
-    {path_indices} is the sublist of {self._order} that represents the
-      current batch; in other words, the current batch of inputs will be:
+    # {start_idx} and {end_idx} are values like 2000 and 3000
+    # If shuffle=True, then {self._order} is a list like [56, 720, 12, ...]
+    # {path_indices} is the sublist of {self._order} that represents the
+    #   current batch; in other words, the current batch of inputs will be:
     #   [self._input_path_lists[path_indices[0]],
     #    self._input_path_lists[path_indices[1]],
     #    self._input_path_lists[path_indices[2]],
