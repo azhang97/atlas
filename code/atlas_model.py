@@ -173,8 +173,6 @@ class ATLASModel(object):
     input_feed[self.target_masks_op] = batch.target_masks_batch
     input_feed[self.keep_prob] = 1.0 - self.FLAGS.dropout  # applies dropout
 
-    print(batch.inputs_batch.shape)
-
     # To debug, it's often helpful to inspect variables or outputs of layers
     #   of the network. To do so, simply add tensors to {output_feed} and
     #   corresponding Python values will populate {results} e.g. suppose you
