@@ -359,7 +359,7 @@ class ATLASModel(object):
 
     sbg = SliceBatchGenerator(input_paths,
                               target_mask_paths,
-                              self.FLAGS.batch_size,
+                              min(self.FLAGS.batch_size, self.FLAGS.dev_num_samples),
                               shape=(self.FLAGS.slice_height,
                                      self.FLAGS.slice_width),
                               num_samples=self.FLAGS.dev_num_samples,
