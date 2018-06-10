@@ -159,7 +159,7 @@ def main(_):
                      or os.path.join(EXPERIMENTS_DIR, FLAGS.experiment_name))
 
   # Sets GPU settings
-  config = tf.ConfigProto()
+  config = tf.ConfigProto(log_device_placement=True)
   config.gpu_options.allow_growth = True
 
   #############################################################################
