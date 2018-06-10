@@ -45,7 +45,7 @@ class ATLASModel(object):
                                        global_step=self.global_step_op)
 
     # Adds a summary to write examples of images to TensorBoard
-    utils.add_summary_image_triplet(self.inputs_op[:,:,:,0],
+    utils.add_summary_image_triplet(self.inputs_op,
                                     self.target_masks_op,
                                     self.predicted_masks_op,
                                     num_images=self.FLAGS.num_summary_images)
@@ -631,7 +631,7 @@ class MetaUNetATLASModel(ATLASModel):
                 output_shape=self.input_dims,
                 scope_name="metaunet")
     self.logits_op = tf.squeeze(
-      metaunet.build_graph(tf.expand_dims(self.inputs_op, 4)), axis=4)
+      metaunet.build_graph(self.inputs_op)
 
     self.predicted_mask_probs_op = tf.sigmoid(self.logits_op,
                                               name="predicted_mask_probs")
