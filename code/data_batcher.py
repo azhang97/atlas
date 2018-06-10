@@ -239,6 +239,7 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
     print(self.meta)
 
   def refill_batches(self):
+    print(0)
     """
     Refills {self._batches}.
     """
