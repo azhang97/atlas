@@ -813,7 +813,7 @@ class MetaUNetATLASModel(ATLASModel):
       that represent pathnames to input image files and target mask files.
     """
 
-    print(dev_input_paths)
+    # print(dev_input_paths)
 
     params = tf.trainable_variables()
     num_params = sum(map(lambda t: np.prod(tf.shape(t.value()).eval()), params))

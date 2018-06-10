@@ -78,10 +78,10 @@ class SliceBatchGenerator(object):
     self._batches = []
     self._max_num_refill_batches = max_num_refill_batches
     self._num_samples = num_samples
-    print(f"input {len(self._input_path_lists)}")
+    #print(f"input {len(self._input_path_lists)}")
     if self._num_samples != None:
       self._input_path_lists = self._input_path_lists[:self._num_samples]
-      print(f"after {len(self._input_path_lists)}")
+      #print(f"after {len(self._input_path_lists)}")
       self._target_mask_path_lists = self._target_mask_path_lists[:self._num_samples]
     self._pointer = 0
     self._order = list(range(len(self._input_path_lists)))
