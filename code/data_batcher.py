@@ -236,7 +236,7 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
         key = '/'.join([row[0], '0'+row[1], row[2].strip()])
         self.meta[key] = tuple(map(int, row[3:7]))
 
-    print(self.meta)
+    # print(self.meta)
 
   def refill_batches(self):
     """
