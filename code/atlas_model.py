@@ -639,7 +639,7 @@ class MetaUNetATLASModel(ATLASModel):
     # Defines the input dimensions, which depend on the intended input; here
     # the intended input is a single slice but volumetric inputs might require
     # 1+ additional dimensions
-    self.input_dims = [self.FLAGS.slice_height, self.FLAGS.slice_width, 2]
+    self.input_dims = [self.FLAGS.slice_height, self.FLAGS.slice_width, 5]
     self.mask_dims = [self.FLAGS.slice_height, self.FLAGS.slice_width]
     self.output_dims = self.input_dims
 
