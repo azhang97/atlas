@@ -290,7 +290,13 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
         input = input.crop((0, 0) + self._shape[::-1])
         input = np.asarray(input) / 255.0
 
-        meta = np.array([1])
+        meta = np.ones(self._shape + (1,))
+
+        #key = input_path_list[0][19:35]
+        #input_meta = np.repeat(np.array(self.meta[key])[np.newaxis,:], self._shape[1], axis=0)
+        #input_meta = np.repeat(input_meta[np.newaxis,:], self._shape[0], axis=0)
+        #print(input.shape, input_meta.shape)
+        input = np.append(input[:, :, np.newaxis], input_meta, axis=2)
         # print(input.shape)
 
         # Assumes {target_mask_path_list} is a list of lists, where the outer
@@ -329,36 +335,6 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
                             np.asarray(target_masks_batch),
                             input_paths_batch,
                             target_mask_path_lists_batch))
-
-
-  def get_batch(self):
-    """
-    Returns a generator object that yields batches, the last of which will be
-    partial.
-    """
-    while True:
-      if len(self._batches) == 0: # adds more batches
-        self.refill_batches()
-      if len(self._batches) == 0:
-        break
-
-      # Pops the next batch, a tuple of four items; the first two are numpy
-      # arrays {inputs_batch} and {target_mask_batch} of batch_size by
-      # input_dims, the last two are tuples of paths.
-      batch = self._batches.pop(0)
-
-      # Wraps the numpy arrays into a Batch object
-      batch = Batch(*batch)
-
-      yield batch
-
-
-  def get_num_batches(self):
-    """
-    Returns the number of batches.
-    """
-    # The -1 then +1 accounts for the remainder batch.
-    return int((len(self._input_path_lists) - 1) / self._batch_size) + 1
 
 class FUCK():
   def refill_batches(self):
