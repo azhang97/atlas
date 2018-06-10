@@ -286,7 +286,7 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
         input = np.asarray(input) / 255.0
 
         meta = np.array([1])
-        print(input.shape)
+        logging.info(f"{input.shape}")
 
         # Assumes {target_mask_path_list} is a list of lists, where the outer
         # list has length 1 and the inner list has length >= 1;
