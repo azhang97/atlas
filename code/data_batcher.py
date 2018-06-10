@@ -297,7 +297,7 @@ class MetaSliceBatchGenerator(SliceBatchGenerator):
         #input_meta = np.repeat(np.array(self.meta[key])[np.newaxis,:], self._shape[1], axis=0)
         #input_meta = np.repeat(input_meta[np.newaxis,:], self._shape[0], axis=0)
         #print(input.shape, input_meta.shape)
-        input = np.append(input[:, :, np.newaxis], meta, axis=2)
+        input = np.append(input[:, :, np.newaxis], input_meta, axis=2)
         # print(input.shape)
 
         # Assumes {target_mask_path_list} is a list of lists, where the outer
