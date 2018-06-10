@@ -588,7 +588,9 @@ class MetaUNetATLASModel(ATLASModel):
     """
     self.FLAGS = FLAGS
 
-    with tf.variable_scope("ATLASModel"):
+    print(dev_input_paths)
+
+    with tf.variable_scope("MetaUNetATLASModel"):
       self.add_placeholders()
       self.build_graph()
       self.add_loss()
