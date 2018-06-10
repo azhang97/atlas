@@ -633,7 +633,7 @@ class MetaUNetATLASModel(ATLASModel):
     msbg = MetaSliceBatchGenerator(input_paths,
                               target_mask_paths,
                               self.FLAGS.batch_size,
-                              num_samples=num_samples, """ REMOVE """
+                              num_samples=num_samples,  # REMOVE
                               shape=(self.FLAGS.slice_height,
                                      self.FLAGS.slice_width),
                               use_fake_target_masks=self.FLAGS.use_fake_target_masks)
@@ -688,7 +688,7 @@ class MetaUNetATLASModel(ATLASModel):
                               min(self.FLAGS.batch_size, self.FLAGS.dev_num_samples),
                               shape=(self.FLAGS.slice_height,
                                      self.FLAGS.slice_width),
-                              num_samples=self.FLAGS.dev_num_samples, """ REMOVE """
+                              num_samples=self.FLAGS.dev_num_samples, # REMOVE
                               use_fake_target_masks=self.FLAGS.use_fake_target_masks)
     for batch in msbg.get_batch():
       predicted_masks = self.get_predicted_masks_for_batch(sess, batch)
