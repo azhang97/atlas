@@ -72,6 +72,7 @@ class SliceBatchGenerator(object):
       ignored and all masks are all 0s. This option might be useful to sanity
       check new models before training on the real dataset.
     """
+    print(input_path_lists)
     self._input_path_lists = input_path_lists
     self._target_mask_path_lists = target_mask_path_lists
     self._batch_size = batch_size

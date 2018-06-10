@@ -871,8 +871,8 @@ class MetaUNetATLASModel(ATLASModel):
           dev_loss = self.calculate_loss(sess,
                                          dev_input_paths,
                                          dev_target_mask_paths,
-                                         "dev",
-                                         self.FLAGS.dev_num_samples)
+                                         "dev") #,
+                                         #self.FLAGS.dev_num_samples)
           logging.info(f"epoch {epoch}, "
                        f"global_step {global_step}, "
                        f"dev_loss {dev_loss}")
@@ -885,8 +885,8 @@ class MetaUNetATLASModel(ATLASModel):
           train_dice = self.calculate_dice_coefficient(sess,
                                                        train_input_paths,
                                                        train_target_mask_paths,
-                                                       "train",
-                                                       num_samples=self.FLAGS.dev_num_samples)
+                                                       "train") #,
+                                                       # num_samples=self.FLAGS.dev_num_samples)
           logging.info(f"epoch {epoch}, "
                        f"global_step {global_step}, "
                        f"train dice_coefficient: {train_dice}")
